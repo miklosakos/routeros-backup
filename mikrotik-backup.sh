@@ -369,3 +369,5 @@ remote_exec "/file/remove \"${config[backupfilename]}.backup\""
 remote_exec "/file/remove \"${config[backupfilename]}.log.txt\""
 logger "Listing files on device"
 remote_exec "/file/print"
+logger "Script has finished running. Exiting with code \"0\""
+exit 0

@@ -284,6 +284,16 @@ rotate_file() {
         fi
 }
 
+check_dir(){
+        if test -d $1; then
+                logger "$1 exists"
+        else
+                logger "$1 doesn't exist"
+                logger "Creating $1..."
+                local_exec mkdir $1
+        fi
+}
+
 # ========================================================================================================================================================================================
 
 
@@ -338,9 +348,15 @@ fi
 
 # let's make sure if the filenames are static as well (backupfilename) we are not overwriting older backups
 
-rotate_file "${config[backuppath]}/${config[backupfilename]}.backup" "backup"
-rotate_file "${config[backuppath]}/${config[backupfilename]}.rsc" "rsc"
-rotate_file "${config[backuppath]}/${config[backupfilename]}.log" "rtrlog"
+
+
+check_dir ${config[backuppath]}/$(date "+%Y")
+check_dir ${config[backuppath]}/$(date "+%Y")/$(date "+%m")
+check_dir ${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")
+
+rotate_file "${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")/${config[backupfilename]}.backup" "backup"
+rotate_file "${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")/${config[backupfilename]}.rsc" "rsc"
+rotate_file "${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")/${config[backupfilename]}.log" "rtrlog"
 
 # ========================================================================================================================================================================================
 
@@ -358,11 +374,11 @@ remote_exec "/file/print where name=\"${config[backupfilename]}.backup\""
 remote_exec "/file/print where name=\"${config[backupfilename]}.rsc\""
 remote_exec "/file/print where name=\"${config[backupfilename]}.log.txt\""
 logger "Fetching config export to ${config[backuppath]}"
-fetch_file "${config[backupfilename]}.rsc" ${config[backuppath]}
-fetch_file "${config[backupfilename]}.backup" ${config[backuppath]}
-fetch_file "${config[backupfilename]}.log.txt" "${config[backuppath]}/${config[backupfilename]}.log"
+fetch_file "${config[backupfilename]}.rsc" ${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")
+fetch_file "${config[backupfilename]}.backup" ${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")
+fetch_file "${config[backupfilename]}.log.txt" "${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")/${config[backupfilename]}.log"
 logger "Listing newly created files at \"${config[backuppath]}\""
-local_exec ls -lha ${config[backuppath]}/${config[backupfilename]}.{log,rsc,backup}
+local_exec ls -lha ${config[backuppath]}/$(date "+%Y")/$(date "+%m")/$(date "+%d")/${config[backupfilename]}.{log,rsc,backup}
 logger "Deleting temporary backup files from ${config[hostname]}"
 remote_exec "/file/remove \"${config[backupfilename]}.rsc\""
 remote_exec "/file/remove \"${config[backupfilename]}.backup\""

@@ -364,7 +364,7 @@ logger "The script will create the following files on ${config[hostname]}: \"${c
 logger "Started $host backup."
 logger "Logging in as ${config[sshusr]} with the following SSH key file: ${config[keyfile]}"
 logger "Generating configuration export."
-remote_exec "/export file=\"${config[backupfilename]}.rsc\""
+remote_exec "/export terse file=\"${config[backupfilename]}.rsc\""
 logger "Generating binary backup."
 remote_exec "/system/backup/save name=\"${config[backupfilename]}.backup\""
 logger "Exporting system logs"
